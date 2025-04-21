@@ -52,6 +52,25 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+        cosmic: {
+          50: '#f2f0ff',
+          100: '#e5deff',
+          200: '#cdc0ff',
+          300: '#b39cff',
+          400: '#9b87f5',
+          500: '#8b5cf6',
+          600: '#7e69ab',
+          700: '#6e59a5',
+          800: '#483a6b',
+          900: '#1A1F2C',
+        },
+        luna: {
+          light: '#D6BCFA',
+          blue: '#0EA5E9',
+          orange: '#F97316',
+          pink: '#D946EF',
+          green: '#22C55E',
+        },
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
