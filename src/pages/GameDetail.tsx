@@ -1,36 +1,74 @@
 
-import { useParams, Navigate } from "react-router-dom";
+import { useState } from "react";
+import { useParams, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { getGameById, getGameImage } from "@/data/games";
-import { getLeaderboardByGame } from "@/data/leaderboards";
+import { games, getGameById, getGameImage } from "@/data/games";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
+
+const deviceOptions = [
+  { value: "auto", label: "Detect automatically" },
+  { value: "mobile", label: "Mobile (touch/tilt controls)" },
+  { value: "desktop", label: "Desktop/Laptop (keyboard/mouse)" },
+];
+
+const useLeaderboardsForGame = (gameId: string) => {
+  // Here you would query from Supabase using react-query, for demo just filter the scoreboard
+  // Replace with a real API call if needed
+  const { getLeaderboardByGame } = require("@/data/leaderboards");
+  return getLeaderboardByGame(gameId);
+};
 
 const GameDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { isAuthenticated } = useAuth();
-  
+  const navigate = useNavigate();
+  const [showDevicePrompt, setShowDevicePrompt] = useState(false);
+  const [selectedDevice, setSelectedDevice] = useState("auto");
+
   if (!isAuthenticated) {
     return <Navigate to="/auth" />;
   }
-  
+
   const game = id ? getGameById(id) : null;
-  
+
   if (!game) {
     return <Navigate to="/dashboard" />;
   }
-  
-  const leaderboard = getLeaderboardByGame(game.id);
-  
+
+  // Filter leaderboard by this game only, real users. Replace with Supabase data fetching as needed.
+  const leaderboard = useLeaderboardsForGame(game.id);
+
+  // Prompt device type before starting the game
+  const handlePlay = () => {
+    setShowDevicePrompt(true);
+  };
+
+  const handleLaunchGame = () => {
+    setShowDevicePrompt(false);
+    // TODO: Send selectedDevice info to game logic for control type
+    // You might use context, query params, or another way
+    // Here just log for debugging
+    console.log("Starting game in", selectedDevice, "mode");
+    // Launch game here
+  };
+
   return (
     <div className={`min-h-screen ${game.colorTheme}`}>
       <div className="container mx-auto p-4">
         <div className="max-w-4xl mx-auto">
+          {/* Back Button */}
+          <div className="mb-4 flex items-center">
+            <Button variant="secondary" onClick={() => navigate(-1)}>
+              Back
+            </Button>
+          </div>
           {/* Game Header */}
           <div className="cosmic-card mb-8">
             <div className="aspect-video w-full relative overflow-hidden rounded-t-lg">
-              <img 
-                src={getGameImage(game.id)} 
-                alt={game.title} 
+              <img
+                src={getGameImage(game.id)}
+                alt={game.title}
                 className="w-full h-full object-cover"
               />
             </div>
@@ -50,13 +88,36 @@ const GameDetail = () => {
                 <h3 className="text-lg font-semibold mb-2">Vibe</h3>
                 <p>{game.vibe}</p>
               </div>
-              <Button className="cosmic-button-primary w-full">
+              <Button className="cosmic-button-primary w-full" onClick={handlePlay}>
                 Play Now
               </Button>
+              {showDevicePrompt && (
+                <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+                  <div className="bg-card p-6 rounded shadow-lg max-w-xs w-full animate-fade-in">
+                    <h3 className="text-lg font-bold mb-3">Choose Device Type</h3>
+                    <div className="flex flex-col gap-2 mb-4">
+                      {deviceOptions.map((opt) => (
+                        <label key={opt.value} className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="deviceType"
+                            value={opt.value}
+                            checked={selectedDevice === opt.value}
+                            onChange={() => setSelectedDevice(opt.value)}
+                          />
+                          {opt.label}
+                        </label>
+                      ))}
+                    </div>
+                    <Button className="w-full mb-2" onClick={handleLaunchGame}>Start Game</Button>
+                    <Button className="w-full" variant="outline" onClick={() => setShowDevicePrompt(false)}>Cancel</Button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-          
-          {/* Leaderboard */}
+
+          {/* Game-specific Leaderboard */}
           <div className="cosmic-card p-6">
             <h2 className="text-2xl font-bold mb-4">Leaderboard</h2>
             {leaderboard.length > 0 ? (
@@ -77,7 +138,12 @@ const GameDetail = () => {
                         <td className="py-3">
                           <div className="flex items-center space-x-2">
                             <div className="w-8 h-8 rounded-full bg-cosmic-100 overflow-hidden">
-                              {entry.avatar && <img src={entry.avatar} alt={entry.username} className="w-full h-full object-cover" />}
+                              <Avatar>
+                                <AvatarImage
+                                  src={entry.avatar || "/avatars/avatar-default.png"}
+                                  alt={entry.username}
+                                />
+                              </Avatar>
                             </div>
                             <span>{entry.username}</span>
                           </div>

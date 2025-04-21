@@ -1,14 +1,18 @@
 
+import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { getTopPlayers } from "@/data/leaderboards";
 import { games, getGameImage } from "@/data/games";
 import { Navigate, Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import ProfileEditDialog from "@/components/ProfileEditDialog";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 
 const Dashboard = () => {
   const { user, isAuthenticated, signOut } = useAuth();
   const topPlayers = getTopPlayers(5);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   if (!isAuthenticated) {
     return <Navigate to="/auth" />;
@@ -22,14 +26,23 @@ const Dashboard = () => {
           <Link to="/dashboard" className="text-2xl font-bold text-cosmic-100">
             Plug and Play
           </Link>
-          
+
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
+            <button
+              className="flex items-center space-x-2 focus:outline-none"
+              aria-label="Edit Profile"
+              onClick={() => setProfileOpen(true)}
+            >
               <div className="w-8 h-8 rounded-full bg-cosmic-400 overflow-hidden">
-                {user?.avatar && <img src={user.avatar} alt={user.username} className="w-full h-full object-cover" />}
+                <Avatar>
+                  <AvatarImage
+                    src={user?.avatar || "/avatars/avatar-default.png"}
+                    alt={user?.username || "Avatar"}
+                  />
+                </Avatar>
               </div>
               <span className="font-medium">{user?.username}</span>
-            </div>
+            </button>
             <Button
               variant="outline"
               className="border-cosmic-300 text-cosmic-100 hover:bg-cosmic-800"
@@ -52,9 +65,9 @@ const Dashboard = () => {
               <Link to={`/games/${game.id}`} key={game.id}>
                 <Card className={`cosmic-card h-full hover:-translate-y-1 transition-transform ${game.colorTheme}`}>
                   <div className="aspect-video w-full relative overflow-hidden rounded-t-lg">
-                    <img 
-                      src={getGameImage(game.id)} 
-                      alt={game.title} 
+                    <img
+                      src={getGameImage(game.id)}
+                      alt={game.title}
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute top-2 right-2 bg-cosmic-900/70 text-white text-xs py-1 px-2 rounded-full">
@@ -82,24 +95,34 @@ const Dashboard = () => {
               <div className="col-span-4">Game</div>
               <div className="col-span-3 text-right">Score</div>
             </div>
-            {topPlayers.map((entry, index) => (
-              <div key={`${entry.userId}-${entry.gameId}`} className="grid grid-cols-12 p-4 border-t border-border items-center">
-                <div className="col-span-1 text-center font-bold">{index + 1}</div>
-                <div className="col-span-4 flex items-center space-x-2">
-                  <div className="w-8 h-8 rounded-full bg-cosmic-100 overflow-hidden">
-                    {entry.avatar && <img src={entry.avatar} alt={entry.username} className="w-full h-full object-cover" />}
+            {topPlayers.length === 0 ? (
+              <div className="p-8 text-center text-muted-foreground">No scores recorded yet. Be the first to play!</div>
+            ) : (
+              topPlayers.map((entry, index) => (
+                <div key={`${entry.userId}-${entry.gameId}`} className="grid grid-cols-12 p-4 border-t border-border items-center">
+                  <div className="col-span-1 text-center font-bold">{index + 1}</div>
+                  <div className="col-span-4 flex items-center space-x-2">
+                    <div className="w-8 h-8 rounded-full bg-cosmic-100 overflow-hidden">
+                      <Avatar>
+                        <AvatarImage
+                          src={entry.avatar || "/avatars/avatar-default.png"}
+                          alt={entry.username}
+                        />
+                      </Avatar>
+                    </div>
+                    <span>{entry.username}</span>
                   </div>
-                  <span>{entry.username}</span>
+                  <div className="col-span-4">
+                    {games.find(game => game.id === entry.gameId)?.title || entry.gameId}
+                  </div>
+                  <div className="col-span-3 text-right font-mono font-bold">{entry.score.toLocaleString()}</div>
                 </div>
-                <div className="col-span-4">
-                  {games.find(game => game.id === entry.gameId)?.title || entry.gameId}
-                </div>
-                <div className="col-span-3 text-right font-mono font-bold">{entry.score.toLocaleString()}</div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </section>
       </main>
+      <ProfileEditDialog open={profileOpen} onOpenChange={setProfileOpen} />
     </div>
   );
 };
