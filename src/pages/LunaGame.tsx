@@ -355,13 +355,15 @@ const LunaGame = () => {
         )}
       </main>
       
-      <style jsx="true">{`
+      <style>
+        {`
         @keyframes float-custom {
-          0% { transform: translate(-50%, -50%) scale(${star => star.size}) rotate(${star => star.rotation}deg) translateY(0px); }
-          50% { transform: translate(-50%, -50%) scale(${star => star.size}) rotate(${star => star.rotation + 5}deg) translateY(-10px); }
-          100% { transform: translate(-50%, -50%) scale(${star => star.size}) rotate(${star => star.rotation}deg) translateY(0px); }
+          0% { transform: translate(-50%, -50%) scale(var(--star-size)) rotate(var(--star-rotation)) translateY(0px); }
+          50% { transform: translate(-50%, -50%) scale(var(--star-size)) rotate(calc(var(--star-rotation) + 5deg)) translateY(-10px); }
+          100% { transform: translate(-50%, -50%) scale(var(--star-size)) rotate(var(--star-rotation)) translateY(0px); }
         }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };
