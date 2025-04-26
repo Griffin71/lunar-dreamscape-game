@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Heart, Sparkles, Star } from 'lucide-react';
+import { Heart, Music, Mountain } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { useToast } from '@/components/ui/use-toast';
 
 interface MessageRevealProps {
   onReset: () => void;
@@ -12,19 +13,22 @@ interface MessageRevealProps {
 export const MessageReveal: React.FC<MessageRevealProps> = ({ onReset, score }) => {
   const [revealedMessage, setRevealedMessage] = useState('');
   const [showEnvelope, setShowEnvelope] = useState(true);
+  const { toast } = useToast();
   
   const fullMessage = `Dear Luna,
 
-This game was made just for you, to celebrate all the things that make you special. 
+This game was made just for you, to celebrate everything that makes you special.
 
-Your love of nature, adventure, and stories...
-Your appreciation for art, music, and the stars above...
-Your kindness toward animals and everyone you meet...
-And the magic you bring to everyday moments.
+Your love for the Mamelodi Sundowns and how passionate you are about soccer,
+The peace you find in nature, surrounded by trees and flowers,
+Your adventurous spirit that drives you to try skydiving, snowboarding, and rock climbing,
+The way RnB and Hip Hop music moves your soul,
+And how you find comfort in the simple joys of staying indoors in your cozy baggy clothes.
 
-You make the world more beautiful just by being in it.
+You make every moment more special just by being you.
 
-With all my love ❤️`;
+With all my love,
+Kabelo Samkelo Kgosana Mahlangu Thulari Mgwezana ❤️`;
 
   useEffect(() => {
     if (showEnvelope) return;
@@ -37,10 +41,25 @@ With all my love ❤️`;
       } else {
         clearInterval(typingInterval);
       }
-    }, 50); // Adjust typing speed here
+    }, 50);
     
     return () => clearInterval(typingInterval);
   }, [showEnvelope]);
+  
+  const saveMessage = () => {
+    const element = document.createElement('a');
+    const file = new Blob([fullMessage], {type: 'text/plain'});
+    element.href = URL.createObjectURL(file);
+    element.download = "message-from-kabelo.txt";
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+    
+    toast({
+      title: "Message saved!",
+      description: "The message has been saved to your device.",
+    });
+  };
   
   return (
     <div className="w-full max-w-md">
@@ -52,13 +71,12 @@ With all my love ❤️`;
             </div>
             
             <div className="relative mb-4">
-              <div className="w-24 h-32 bg-gradient-to-br from-cosmic-300 to-cosmic-500 rounded-md flex flex-col items-center justify-center shadow-lg transform hover:scale-105 transition-transform">
+              <div className="w-24 h-32 bg-gradient-to-br from-luna-orange to-cosmic-500 rounded-md flex flex-col items-center justify-center shadow-lg transform hover:scale-105 transition-transform">
                 <Heart className="h-8 w-8 text-white mb-2" />
                 <div className="text-xs text-white text-center px-2">
                   A special message for Luna
                 </div>
               </div>
-              <Sparkles className="absolute -top-2 -right-2 h-6 w-6 text-yellow-400 animate-pulse" />
             </div>
             
             <h2 className="text-2xl font-bold bg-gradient-to-r from-cosmic-300 to-cosmic-500 bg-clip-text text-transparent mb-4 relative z-10">
@@ -66,7 +84,7 @@ With all my love ❤️`;
             </h2>
             
             <div className="flex items-center gap-2 mb-4 relative z-10">
-              <Star className="h-5 w-5 text-yellow-400" />
+              <Music className="h-5 w-5 text-luna-orange" />
               <span className="font-bold">{score} Stars Collected</span>
             </div>
             
@@ -76,7 +94,7 @@ With all my love ❤️`;
             
             <Button 
               onClick={() => setShowEnvelope(false)}
-              className="w-full bg-cosmic-500 hover:bg-cosmic-600 relative z-10"
+              className="w-full bg-luna-orange hover:bg-luna-orange/90 relative z-10"
             >
               Open Love Letter
             </Button>
@@ -95,13 +113,23 @@ With all my love ❤️`;
               </p>
             </div>
             
-            <Button 
-              onClick={onReset}
-              className="w-full"
-              variant="outline"
-            >
-              Play Again
-            </Button>
+            <div className="flex flex-col gap-2">
+              <Button 
+                onClick={saveMessage}
+                className="w-full bg-luna-orange hover:bg-luna-orange/90"
+                leftIcon={<Mountain className="h-4 w-4" />}
+              >
+                Save Message
+              </Button>
+              
+              <Button 
+                onClick={onReset}
+                className="w-full"
+                variant="outline"
+              >
+                Play Again
+              </Button>
+            </div>
           </CardContent>
         </Card>
       )}

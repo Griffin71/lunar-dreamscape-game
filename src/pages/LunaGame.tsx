@@ -1,7 +1,7 @@
+
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { StarIcon, Heart, Music, Sparkles, TreeDeciduous, Compass, Book } from "lucide-react";
+import { Music, Mountain, TreeDeciduous, Heart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { StarField } from "@/components/StarField";
 import { MessageReveal } from "@/components/MessageReveal";
@@ -15,10 +15,9 @@ const LunaGame = () => {
   const [stars, setStars] = useState<{id: number, x: number, y: number, collected: boolean, type: string}[]>([]);
   const gameAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
-  const navigate = useNavigate();
   
-  // Star types based on Luna's interests
-  const starTypes = ['love', 'nature', 'adventure', 'story', 'art', 'music', 'animal', 'magic'];
+  // Star types based on Luna's actual interests
+  const starTypes = ['soccer', 'nature', 'adventure', 'music', 'comfort'];
   
   // Generate random stars
   useEffect(() => {
@@ -31,7 +30,6 @@ const LunaGame = () => {
         
         // Generate 15 stars
         for (let i = 0; i < 15; i++) {
-          // Keep stars away from edges
           const x = 40 + Math.random() * (width - 80);
           const y = 40 + Math.random() * (height - 80);
           const type = starTypes[Math.floor(Math.random() * starTypes.length)];
@@ -50,7 +48,6 @@ const LunaGame = () => {
       
       generateStars();
       
-      // Game timer
       const timer = setInterval(() => {
         setTimeLeft(prev => {
           if (prev <= 1) {
@@ -74,7 +71,6 @@ const LunaGame = () => {
     }
   }, [gameStarted, gameCompleted, score, toast]);
   
-  // Handle star collection
   const collectStar = (id: number, type: string) => {
     setStars(prevStars =>
       prevStars.map(star =>
@@ -84,16 +80,12 @@ const LunaGame = () => {
     
     setScore(prevScore => prevScore + 1);
     
-    // Show message based on star type
     const messages: Record<string, string> = {
-      love: "Love letters warm the heart ❤️",
-      nature: "Nature brings peace and connection 🌱",
-      adventure: "Adventure awaits around every corner 🧭",
-      story: "Stories carry us to magical worlds 📚",
-      art: "Art brings beauty to everyday life 🎨",
-      music: "Music touches the soul 🎵",
-      animal: "Animals fill our lives with joy 🐾",
-      magic: "Magic makes the world more wonderful ✨"
+      soccer: "Mamelodi Sundowns forever! ⚽",
+      nature: "Finding peace among the trees 🌳",
+      adventure: "Life is an adventure waiting to happen 🏔️",
+      music: "RnB and Hip Hop move the soul 🎵",
+      comfort: "Cozy vibes in baggy clothes 🏠"
     };
     
     toast({
@@ -102,14 +94,12 @@ const LunaGame = () => {
       duration: 2000,
     });
     
-    // Check if all stars are collected
     const allCollected = stars.every(star => star.id === id || star.collected);
     if (allCollected) {
       setGameCompleted(true);
     }
   };
   
-  // Reset game
   const resetGame = () => {
     setGameStarted(true);
     setScore(0);
@@ -118,31 +108,23 @@ const LunaGame = () => {
     setStars([]);
   };
   
-  // Star icon component based on type
   const getStarIcon = (type: string) => {
     switch(type) {
-      case 'love': return <Heart className="h-6 w-6 text-rose-400" />;
+      case 'soccer': return <Heart className="h-6 w-6 text-luna-orange" />;
       case 'nature': return <TreeDeciduous className="h-6 w-6 text-green-400" />;
-      case 'adventure': return <Compass className="h-6 w-6 text-blue-400" />;
-      case 'story': return <Book className="h-6 w-6 text-amber-400" />;
-      case 'art': return <StarIcon className="h-6 w-6 text-purple-400" />;
-      case 'music': return <Music className="h-6 w-6 text-indigo-400" />;
-      case 'animal': return <StarIcon className="h-6 w-6 text-orange-400" />;
-      case 'magic': return <Sparkles className="h-6 w-6 text-cyan-400" />;
-      default: return <StarIcon className="h-6 w-6 text-yellow-400" />;
+      case 'adventure': return <Mountain className="h-6 w-6 text-blue-400" />;
+      case 'music': return <Music className="h-6 w-6 text-purple-400" />;
+      case 'comfort': return <Heart className="h-6 w-6 text-rose-400" />;
+      default: return <Heart className="h-6 w-6 text-yellow-400" />;
     }
   };
   
   return (
     <div className="min-h-screen flex flex-col bg-cosmic-900 text-white">
-      <header className="p-4 flex items-center justify-between">
-        <Link to="/">
-          <Button variant="ghost">← Back</Button>
-        </Link>
-        <h1 className="text-xl font-bold bg-gradient-to-r from-cosmic-300 via-cosmic-500 to-cosmic-700 bg-clip-text text-transparent">
-          Luna's Starlight Collection
+      <header className="p-4 flex items-center justify-center">
+        <h1 className="text-xl font-bold bg-gradient-to-r from-cosmic-300 via-luna-orange to-cosmic-700 bg-clip-text text-transparent">
+          Luna's Star Collection
         </h1>
-        <div className="w-20"></div> {/* Spacer for balance */}
       </header>
       
       <main className="flex-1 flex flex-col items-center justify-center p-4">
@@ -150,14 +132,13 @@ const LunaGame = () => {
           <Card className="w-full max-w-md bg-cosmic-900/80 border border-cosmic-700">
             <CardContent className="pt-6 flex flex-col items-center text-center">
               <div className="relative mb-6">
-                <StarIcon className="h-12 w-12 text-yellow-400 animate-pulse" />
-                <Sparkles className="h-8 w-8 text-purple-400 absolute -top-2 -right-2 animate-pulse" />
+                <Heart className="h-12 w-12 text-luna-orange animate-pulse" />
               </div>
               <h2 className="text-2xl font-bold bg-gradient-to-r from-cosmic-300 to-cosmic-500 bg-clip-text text-transparent mb-4">
-                Luna's Starlight Collection
+                Luna's Star Collection
               </h2>
               <p className="mb-6 text-cosmic-300">
-                Collect the magical stars that represent everything you love. Each star holds a special meaning!
+                Collect the stars that represent everything that makes you special!
               </p>
               <div className="grid grid-cols-2 gap-4 mb-6">
                 {starTypes.map(type => (
@@ -169,7 +150,7 @@ const LunaGame = () => {
               </div>
               <Button 
                 onClick={() => setGameStarted(true)}
-                className="w-full bg-cosmic-500 hover:bg-cosmic-600"
+                className="w-full bg-luna-orange hover:bg-luna-orange/90"
               >
                 Begin Your Adventure
               </Button>
@@ -184,7 +165,7 @@ const LunaGame = () => {
           <div className="w-full max-w-3xl flex flex-col h-[70vh]">
             <div className="flex justify-between items-center mb-4 px-4">
               <div className="flex gap-2 items-center">
-                <StarIcon className="h-5 w-5 text-yellow-400" />
+                <Heart className="h-5 w-5 text-luna-orange" />
                 <span className="font-bold text-lg">{score}</span>
               </div>
               <div className="px-4 py-1 rounded-full bg-cosmic-800 border border-cosmic-700">
