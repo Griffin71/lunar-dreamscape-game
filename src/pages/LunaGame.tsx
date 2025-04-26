@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Music, Mountain, TreeDeciduous, Heart } from "lucide-react";
@@ -7,28 +6,35 @@ import { StarField } from "@/components/StarField";
 import { MessageReveal } from "@/components/MessageReveal";
 import { useToast } from "@/hooks/use-toast";
 
+interface Star {
+  id: number;
+  x: number;
+  y: number;
+  collected: boolean;
+  type: string;
+  velocityX: number;
+  velocityY: number;
+}
+
 const LunaGame = () => {
   const [gameStarted, setGameStarted] = useState(false);
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(30);
   const [gameCompleted, setGameCompleted] = useState(false);
-  const [stars, setStars] = useState<{id: number, x: number, y: number, collected: boolean, type: string}[]>([]);
+  const [stars, setStars] = useState<Star[]>([]);
   const gameAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   
-  // Star types based on Luna's actual interests
   const starTypes = ['soccer', 'nature', 'adventure', 'music', 'comfort'];
   
-  // Generate random stars with initial positions and velocities
   useEffect(() => {
     if (gameStarted && !gameCompleted) {
       const generateStars = () => {
         if (!gameAreaRef.current) return;
         
         const { width, height } = gameAreaRef.current.getBoundingClientRect();
-        const newStars = [];
+        const newStars: Star[] = [];
         
-        // Generate 15 stars
         for (let i = 0; i < 15; i++) {
           const x = 40 + Math.random() * (width - 80);
           const y = 40 + Math.random() * (height - 80);
@@ -40,8 +46,8 @@ const LunaGame = () => {
             y,
             collected: false,
             type,
-            velocityX: (Math.random() - 0.5) * 2,
-            velocityY: (Math.random() - 0.5) * 2
+            velocityX: (Math.random() - 0.5) * 1,
+            velocityY: (Math.random() - 0.5) * 1
           });
         }
         
@@ -50,7 +56,6 @@ const LunaGame = () => {
       
       generateStars();
       
-      // Update star positions
       const moveInterval = setInterval(() => {
         setStars(prevStars => 
           prevStars.map(star => {
@@ -59,10 +64,9 @@ const LunaGame = () => {
             const newX = star.x + star.velocityX;
             const newY = star.y + star.velocityY;
             
-            // Bounce off walls
             const bounce = (pos: number, vel: number, min: number, max: number) => {
               if (pos <= min || pos >= max) {
-                return -vel;
+                return -vel * 0.8;
               }
               return vel;
             };
@@ -116,17 +120,49 @@ const LunaGame = () => {
     
     setScore(prevScore => prevScore + 1);
     
-    const messages: Record<string, string> = {
-      soccer: "Mamelodi Sundowns forever! ⚽",
-      nature: "Finding peace among the trees 🌳",
-      adventure: "Life is an adventure waiting to happen 🏔️",
-      music: "RnB and Hip Hop move the soul 🎵",
-      comfort: "Cozy vibes in baggy clothes 🏠"
+    const messages: Record<string, string[]> = {
+      soccer: [
+        "Mamelodi Sundowns forever! ⚽",
+        "The beautiful game brings us together!",
+        "Your passion for soccer lights up the field!",
+        "Sundowns shining bright like you!",
+        "Every match is magic with you!"
+      ],
+      nature: [
+        "Finding peace among the trees 🌳",
+        "Nature's embrace calms the soul",
+        "Every flower blooms for you",
+        "Peaceful moments in nature's arms",
+        "Connected to earth's gentle heart"
+      ],
+      adventure: [
+        "Life is an adventure waiting to happen 🏔️",
+        "Skydiving into love with you",
+        "Climbing mountains of dreams together",
+        "Every day's an adventure by your side",
+        "Snowboarding through life's thrills"
+      ],
+      music: [
+        "RnB and Hip Hop move the soul 🎵",
+        "Your heart beats to the perfect rhythm",
+        "Dancing through life with you",
+        "Our love song plays forever",
+        "Music speaks what words can't say"
+      ],
+      comfort: [
+        "Cozy vibes in baggy clothes 🏠",
+        "Home is wherever you are",
+        "Comfort in your gentle presence",
+        "Safe in our little world",
+        "Perfect peace with you"
+      ]
     };
+    
+    const randomIndex = Math.floor(Math.random() * messages[type].length);
     
     toast({
       title: `${type.charAt(0).toUpperCase() + type.slice(1)} star!`,
-      description: messages[type],
+      description: messages[type][randomIndex],
       duration: 2000,
     });
     
