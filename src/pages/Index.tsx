@@ -2,29 +2,36 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { games, getGameImage } from "@/data/games";
+import { Heart, Sparkles } from "lucide-react";
 
 const Index = () => {
   return (
     <div className="min-h-screen flex flex-col starry-bg">
       {/* Hero Section */}
       <section className="py-20 px-4 flex-1 flex flex-col items-center justify-center text-center">
-        <h1 className="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-cosmic-300 via-cosmic-500 to-cosmic-700 bg-clip-text text-transparent animate-float">
-          Plug and Play
+        <div className="mb-8 relative">
+          <div className="inline-block relative">
+            <Heart className="h-16 w-16 text-cosmic-500" />
+            <Sparkles className="h-8 w-8 text-yellow-400 absolute -top-2 -right-2 animate-pulse" />
+          </div>
+        </div>
+        <h1 className="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-cosmic-300 via-cosmic-500 to-cosmic-700 bg-clip-text text-transparent">
+          For Luna
         </h1>
         <p className="text-xl md:text-2xl mb-8 max-w-2xl">
-          Not Just Games. It's a Feeling.
+          A special game created just for you
         </p>
         <div className="flex flex-col sm:flex-row gap-4">
-          <Link to="/auth">
-            <Button className="cosmic-button-primary text-lg px-8 py-6">Get Started</Button>
+          <Link to="/luna-game">
+            <Button className="cosmic-button-primary text-lg px-8 py-6 bg-gradient-to-r from-cosmic-500 to-cosmic-700 hover:from-cosmic-600 hover:to-cosmic-800 group">
+              <span>Play Luna's Game</span>
+              <Sparkles className="h-5 w-5 ml-2 group-hover:animate-ping" />
+            </Button>
           </Link>
-          <a href="#games">
-            <Button variant="outline" className="text-lg px-8 py-6">Explore Games</Button>
-          </a>
         </div>
       </section>
 
-      {/* Game Showcase */}
+      {/* Game Showcase - Show below but with less emphasis */}
       <section id="games" className="py-16 px-4 bg-gradient-to-b from-background/80 to-cosmic-900/20">
         <div className="container mx-auto">
           <h2 className="text-3xl font-bold mb-2 text-center">Experience the Luna Universe</h2>
@@ -71,10 +78,10 @@ const Index = () => {
       {/* Footer */}
       <footer className="bg-cosmic-900 text-white py-8 px-4">
         <div className="container mx-auto text-center">
-          <h2 className="text-xl font-bold mb-2">Plug and Play</h2>
-          <p className="text-cosmic-300 mb-4">Not Just Games. It's a Feeling.</p>
+          <h2 className="text-xl font-bold mb-2">For Luna</h2>
+          <p className="text-cosmic-300 mb-4">A game made with love</p>
           <p className="text-sm text-cosmic-400">
-            © {new Date().getFullYear()} Plug and Play. All rights reserved.
+            © {new Date().getFullYear()} Luna's Starlight Collection. All rights reserved.
           </p>
         </div>
       </footer>
