@@ -5,12 +5,12 @@ import { Music, Mountain, TreeDeciduous, Heart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { StarField } from "@/components/StarField";
 import { MessageReveal } from "@/components/MessageReveal";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 const LunaGame = () => {
   const [gameStarted, setGameStarted] = useState(false);
   const [score, setScore] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(45);
+  const [timeLeft, setTimeLeft] = useState(30);
   const [gameCompleted, setGameCompleted] = useState(false);
   const [stars, setStars] = useState<{id: number, x: number, y: number, collected: boolean, type: string}[]>([]);
   const gameAreaRef = useRef<HTMLDivElement>(null);
@@ -19,7 +19,7 @@ const LunaGame = () => {
   // Star types based on Luna's actual interests
   const starTypes = ['soccer', 'nature', 'adventure', 'music', 'comfort'];
   
-  // Generate random stars
+  // Generate random stars with initial positions and velocities
   useEffect(() => {
     if (gameStarted && !gameCompleted) {
       const generateStars = () => {
@@ -39,7 +39,9 @@ const LunaGame = () => {
             x,
             y,
             collected: false,
-            type
+            type,
+            velocityX: (Math.random() - 0.5) * 2,
+            velocityY: (Math.random() - 0.5) * 2
           });
         }
         
@@ -48,10 +50,41 @@ const LunaGame = () => {
       
       generateStars();
       
+      // Update star positions
+      const moveInterval = setInterval(() => {
+        setStars(prevStars => 
+          prevStars.map(star => {
+            if (star.collected) return star;
+            
+            const newX = star.x + star.velocityX;
+            const newY = star.y + star.velocityY;
+            
+            // Bounce off walls
+            const bounce = (pos: number, vel: number, min: number, max: number) => {
+              if (pos <= min || pos >= max) {
+                return -vel;
+              }
+              return vel;
+            };
+            
+            const { width, height } = gameAreaRef.current!.getBoundingClientRect();
+            
+            return {
+              ...star,
+              x: Math.max(40, Math.min(width - 40, newX)),
+              y: Math.max(40, Math.min(height - 40, newY)),
+              velocityX: bounce(newX, star.velocityX, 40, width - 40),
+              velocityY: bounce(newY, star.velocityY, 40, height - 40)
+            };
+          })
+        );
+      }, 50);
+      
       const timer = setInterval(() => {
         setTimeLeft(prev => {
           if (prev <= 1) {
             clearInterval(timer);
+            clearInterval(moveInterval);
             if (score >= 10) {
               setGameCompleted(true);
             } else {
@@ -60,14 +93,17 @@ const LunaGame = () => {
                 description: `You collected ${score} stars. Try again to collect at least 10!`,
               });
               setGameStarted(false);
-              return 45;
+              return 30;
             }
           }
           return prev - 1;
         });
       }, 1000);
       
-      return () => clearInterval(timer);
+      return () => {
+        clearInterval(timer);
+        clearInterval(moveInterval);
+      };
     }
   }, [gameStarted, gameCompleted, score, toast]);
   
@@ -103,7 +139,7 @@ const LunaGame = () => {
   const resetGame = () => {
     setGameStarted(true);
     setScore(0);
-    setTimeLeft(45);
+    setTimeLeft(30);
     setGameCompleted(false);
     setStars([]);
   };
@@ -182,8 +218,12 @@ const LunaGame = () => {
               {stars.map(star => !star.collected && (
                 <button
                   key={star.id}
-                  className="absolute transform -translate-x-1/2 -translate-y-1/2 p-2 cursor-pointer transition-transform hover:scale-125 focus:outline-none focus:ring-2 focus:ring-cosmic-500 rounded-full"
-                  style={{ left: star.x, top: star.y }}
+                  className="absolute transform -translate-x-1/2 -translate-y-1/2 p-2 cursor-pointer transition-transform hover:scale-125 focus:outline-none focus:ring-2 focus:ring-cosmic-500 rounded-full animate-float"
+                  style={{ 
+                    left: star.x, 
+                    top: star.y,
+                    animationDelay: `${Math.random() * 2}s`
+                  }}
                   onClick={() => collectStar(star.id, star.type)}
                   aria-label={`Collect ${star.type} star`}
                 >
@@ -193,7 +233,7 @@ const LunaGame = () => {
             </div>
             
             <div className="mt-4 text-center text-sm text-cosmic-300">
-              Collect at least 10 stars in 45 seconds to reveal a special message!
+              Collect at least 10 stars in 30 seconds to reveal a special collection of love letters!
             </div>
           </div>
         )}
